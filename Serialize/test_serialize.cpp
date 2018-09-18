@@ -27,7 +27,7 @@ int main()
 	deserialize(boo2, ifs);
 
 	if (equal(hello, hello + 7, hello2))
-		cout << "υσι v2" << endl;
+		cout << "Hello Ok" << endl;
 
 	if (equal(boo, boo + 3, boo2))
 		cout << "Boo OK!" << endl;
