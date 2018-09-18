@@ -67,6 +67,7 @@ struct deserializer <std::vector<T>> {
 		{
 			T objI;
 			deserialize(objI, is);
+			obj.push_back(objI);
 		}
 	}
 };
@@ -119,7 +120,7 @@ struct deserializer <std::string>{
 		deserialize<size_t>(size, is);
 		char* buf = (char*)malloc(sizeof(char)*size);
 		is.read(buf, size);
-		obj = std::string(buf);
+		obj = std::string(buf,size);
 		free(buf);
 	}
 };
