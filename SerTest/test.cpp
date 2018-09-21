@@ -1,146 +1,114 @@
 #include "pch.h"
+
+#include "temp.h"
+
 #include <serialize.h>
 #include <string>
 #include <fstream>
 #include <vector>
 #include <map>
 using namespace std;
-static int LENGHT = 1000;
+static size_t LENGHT = 1000;
 
-TEST(Stiring, Null)
-{
-	ofstream ofs("NullString");
-	string obj;
-	string tobj;
-	serialize(obj, ofs);
-	ofs.close();
-	ifstream ifs("NullString");
-	ifs >> noskipws;
-	deserialize(tobj, ifs);
-	ASSERT_TRUE(obj == tobj);	
-}
-
-TEST(Stiring, NotNull)
-{
-	ofstream ofs("NullString");
-	string obj = "123";
-	string tobj;
-	serialize(obj, ofs);
-	ofs.close();
-	ifstream ifs("NullString");
-	deserialize(tobj, ifs);
-	ASSERT_TRUE(obj == tobj);
-}
-
-TEST(VectorString, Null)
-{
-	ofstream ofs("VectorString");
-	vector<string> obj;
-	vector<string> tobj;
-	serialize(obj, ofs);
-	ofs.close();
-	ifstream ifs("VectorString");
-	deserialize(tobj, ifs);
-	ASSERT_TRUE(obj == tobj);
-}
-
-TEST(VectorString, NotNull)
-{
-	ofstream ofs("VectorString");
-	vector<string> obj;
-	for (int i = 0; i < LENGHT; i++)
-	{
-		obj.push_back(std::to_string(i));
+class TestCaseFixing : public ::testing::Test {
+protected:
+	virtual void SetUp(void) {
+		// настройка перед запуском очередного теста
 	}
-	vector<string> tobj;
-	serialize(obj, ofs);
-	ofs.close();
-	ifstream ifs("VectorString");
-	ifs >> noskipws;
-	deserialize(tobj, ifs);
-	ASSERT_TRUE(obj == tobj);
+	virtual void TearDown(void) {
+		// очистка после прогона очередного теста
+	}
+
+	
+	string objString;
+	vector<string> objVectorString;
+	map<string,string> objMapStringString;
+	vector<map<string,string>> objVectorMapStringString;
+	map<string,vector<string>> objMapStringVectorString;
+	 
+	template<typename T>
+	bool test(T obj)
+	{
+		ofstream ofs("obj.ser");
+		serialize(obj, ofs);
+		ofs.close();
+		T tobj;
+		ifstream ifs("obj.ser");
+		ifs >> noskipws;
+		deserialize(tobj, ifs);
+		return obj == tobj;
+	}
+
+};
+
+TEST_F(TestCaseFixing, NullString)
+{
+	ASSERT_TRUE(test(objString));
 }
 
-TEST(MapStringString, Null)
+TEST_F(TestCaseFixing, NotNullString)
 {
-	ofstream ofs("MapStringString");
-	string obj;
-	string tobj;
-	serialize(obj, ofs);
-	ofs.close();
-	ifstream ifs("MapStringString");
-	deserialize(tobj, ifs);
-	ASSERT_TRUE(obj == tobj);
+	objString = "test\0\n\0\0\0";
+	ASSERT_TRUE(test(objString));
 }
 
-TEST(MapStringString, NotNull)
+TEST_F(TestCaseFixing, NullVectorString)
 {
-	ofstream ofs("MapStringString");
-	map<string,string> obj;
+	ASSERT_TRUE(test(objVectorString));
+}
+
+TEST_F(TestCaseFixing, NotNullVectorString)
+{
 	for (size_t i = 0; i < LENGHT; i++)
 	{
-		obj.emplace(to_string(i), to_string(i));
+		objVectorString.push_back(std::to_string(i));
 	}
-	map<string, string> tobj;
-	serialize(obj, ofs);
-	ofs.close();
-	ifstream ifs("MapStringString");
-	ifs >> noskipws;
-	deserialize(tobj, ifs);
-	ASSERT_TRUE(obj == tobj);
+	ASSERT_TRUE(test(objVectorString));
 }
 
-TEST(VectorMapStringString, Null)
+TEST_F(TestCaseFixing, NullMapStringString)
 {
-	ofstream ofs("VectorMapStringString");
-	vector<map<string,string>> obj;
-	vector<map<string, string>> tobj;
-	serialize(obj, ofs);
-	ofs.close();
-	ifstream ifs("VectorMapStringString");
-	ifs >> noskipws;
-	deserialize(tobj, ifs);
-	ASSERT_TRUE(obj == tobj);
+	ASSERT_TRUE(test(objMapStringString));
 }
 
-TEST(VectorMapStringString, NotNull)
+TEST_F(TestCaseFixing, NotNullMapStringString)
 {
-	ofstream ofs("VectorMapStringString");
-	vector<map<string, string>> obj;
+	for (size_t i = 0; i < LENGHT; i++)
+	{
+		objMapStringString.emplace(to_string(i), to_string(i));
+	}
+	ASSERT_TRUE(test(objMapStringString));
+}
+
+
+TEST_F(TestCaseFixing, NullVectorMapStringString)
+{
+	ASSERT_TRUE(test(objVectorMapStringString));
+}
+
+TEST_F(TestCaseFixing, NotNullVectorMapStringString)
+{
 	for (size_t i = 0; i < LENGHT; i++)
 	{
 		map<string, string> toPushBack;
 		for (size_t j = 0; j < LENGHT; j++)
 		{
-			toPushBack.emplace(to_string(10*i + j), to_string(10*i + j));
+			toPushBack.emplace(to_string(j), to_string(j));
 		}
+		objVectorMapStringString.push_back(toPushBack);
 	}
-	vector<map<string, string>> tobj;
-	serialize(obj, ofs);
-	ofs.close();
-	ifstream ifs("VectorMapStringString");
-	ifs >> noskipws;
-	deserialize(tobj, ifs);
-	ASSERT_TRUE(obj == tobj);
+	ASSERT_TRUE(test(objVectorMapStringString));
 }
 
-TEST(MapStringVectorString, Null)
+
+
+TEST_F(TestCaseFixing, NullMapStringVectorString)
 {
-	ofstream ofs("MapStringVectorString");
-	map<string, vector<string>> obj;
-	map<string, vector<string>> tobj;
-	serialize(obj, ofs);
-	ofs.close();
-	ifstream ifs("MapStringVectorString");
-	ifs >> noskipws;
-	deserialize(tobj, ifs);
-	ASSERT_TRUE(obj == tobj);
+	ASSERT_TRUE(test(objMapStringVectorString));
 }
 
-TEST(MapStringVectorString, NotNull)
+TEST_F(TestCaseFixing, NotNullMapStringVectorString)
 {
-	ofstream ofs("MapStringVectorString");
-	map<string,vector<string>> obj;
 	for (size_t i = 0; i < LENGHT; i++)
 	{
 		vector<string> toEmplace;
@@ -148,13 +116,7 @@ TEST(MapStringVectorString, NotNull)
 		{
 			toEmplace.push_back(to_string(j));
 		}
-		obj.emplace(to_string(i), toEmplace);
+		objMapStringVectorString.emplace(to_string(i), toEmplace);
 	}
-	map<string, vector<string>> tobj;
-	serialize(obj, ofs);
-	ofs.close();
-	ifstream ifs("MapStringVectorString");
-	ifs >> noskipws;
-	deserialize(tobj, ifs);
-	ASSERT_TRUE(obj == tobj);
+	ASSERT_TRUE(test(objMapStringVectorString));
 }
