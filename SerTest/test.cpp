@@ -8,7 +8,7 @@
 #include <vector>
 #include <map>
 using namespace std;
-static size_t LENGHT = 1000;
+
 
 class TestCaseFixing : public ::testing::Test {
 protected:
@@ -19,7 +19,7 @@ protected:
 		// очистка после прогона очередного теста
 	}
 
-	
+	size_t LENGHT = 1000;
 	string objString;
 	vector<string> objVectorString;
 	map<string,string> objMapStringString;
